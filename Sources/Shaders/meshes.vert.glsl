@@ -1,0 +1,9 @@
+attribute vec3 pos;
+attribute vec2 tex;
+attribute vec3 nor;
+
+attribute mat4 MVP;
+
+void kore() {
+	gl_Position = MVP * vec4(pos, 1.0);
+}

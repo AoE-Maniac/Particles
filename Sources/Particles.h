@@ -1,0 +1,10 @@
+#pragma once
+
+#include <Kore/Graphics/Graphics.h>
+
+void initParticleSystem();
+void deleteParticleSystem();
+
+void addParticleEmitter(Kore::vec3 emitPos, float radius, Kore::vec3 emitDir, float spread, float maxRot, float minSpeed, float maxSpeed, float gravMin, float gravMax, float rateMin, float rateMax, float minTtl, float maxTtl, float minSize, float maxSize, Kore::vec4 colorSMin, Kore::vec4 colorSMax, Kore::vec4 colorEMin, Kore::vec4 colorEMax, Kore::vec2 texOffset);
+void updateParticleSystem(float deltaTime);
+void renderParticles(Kore::mat4 V, Kore::mat4 P);
