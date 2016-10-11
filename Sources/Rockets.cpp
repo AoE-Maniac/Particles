@@ -164,7 +164,7 @@ void renderRockets(mat4 V, mat4 P) {
 	Graphics::setRenderState(BlendingState, true);
 	Graphics::setRenderState(DepthTest, true);
 	Graphics::setRenderState(DepthTestCompare, ZCompareLess);
-	Graphics::setRenderState(DepthWrite, false);
+	Graphics::setRenderState(DepthWrite, true);
 
 	float* data = vbs[1]->lock();
 	mat4 PV = P * V;
