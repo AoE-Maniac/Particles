@@ -98,10 +98,19 @@ void initRockets() {
 }
 
 void deleteRockets() {
-	delete vbs;
-	delete ib;
+	delete[] vbs[0];
+	delete[] vbs[1];
+	delete[] vbs;
+	delete[] ib;
 
-	delete rockets;
+	delete[] rockets;
+}
+
+void fireRocketRaw(u8* params) {
+	//fireRocket(vec3(*(float*)&params[0], *(float*)&params[4], *(float*)&params[8]),
+		//vec3(*(float*)&params[12], *(float*)&params[16], *(float*)&params[20]));
+	fireRocket(vec3(params[0], params[4], params[8]),
+		vec3(params[12], params[16], params[20]));
 }
 
 void fireRocket(vec3 from, vec3 to) {

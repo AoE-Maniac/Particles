@@ -5,6 +5,7 @@
 
 #include "Particles.h"
 #include "Rockets.h"
+#include "Scheduler.h"
 
 using namespace Kore;
 
@@ -16,13 +17,8 @@ namespace {
 	mat4 view;
 	mat4 projection;
 	
-	double startTime;
-	double lastTime;
-	
 	void update() {
-		double t = System::time() - startTime;
-		double deltaT = t - lastTime;
-		lastTime = t;
+		float deltaT = updateScheduler();
 
 		vec4 newCameraPos = /*mat4::RotationY(System::time() / 4) **/ cameraStart;
 		view = mat4::lookAt(newCameraPos,
@@ -67,8 +63,12 @@ int kore(int argc, char** argv) {
 	//cameraStart = vec4(0, 50, 1);
 	projection = mat4::Perspective(0.5f * pi, (float)width / height, 0.1f, 100.0f);
 
+	initScheduler();
 	initParticleSystem();
 	initRockets();
+
+	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 100, 0, 0), 1);
+
 	int c = 5;
 	/*for (int x = -c; x <= c; ++x) {
 		for (int z = -c; z <= c; ++z) {
@@ -123,8 +123,6 @@ int kore(int argc, char** argv) {
 	Kore::System::setCallback(update);
 
 	Random::init(System::time() * 100);
-	startTime = System::time();
-	lastTime = 0;
 	Kore::System::start();
 
 	return 0;

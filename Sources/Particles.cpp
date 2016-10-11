@@ -136,11 +136,13 @@ void initParticleSystem() {
 }
 
 void deleteParticleSystem() {
-	delete vbs;
-	delete ib;
+	delete[] vbs[0];
+	delete[] vbs[1];
+	delete[] vbs;
+	delete[] ib;
 
-	delete emitters;
-	delete particles;
+	delete[] emitters;
+	delete[] particles;
 }
 
 int addParticleEmitter(vec3 emitPos, float radius, vec3 emitDir, float spread, float maxRot, float minSpeed, float maxSpeed, float gravMin, float gravMax, float rateMin, float rateMax, float minTtl, float maxTtl, float minSize, float maxSize, vec4 colorSMin, vec4 colorSMax, vec4 colorEMin, vec4 colorEMax, vec2 texOffset) {
