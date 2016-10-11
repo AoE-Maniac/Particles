@@ -37,7 +37,7 @@ namespace {
 		Graphics::clear(Graphics::ClearColorFlag | Graphics::ClearDepthFlag, 0xFFFFBD00, 1.0f);
 
 		renderRockets(view, projection);
-		//renderParticles(view, projection);
+		renderParticles(view, projection);
 
 		Graphics::end();
 		Graphics::swapBuffers();
@@ -70,7 +70,7 @@ int kore(int argc, char** argv) {
 	initParticleSystem();
 	initRockets();
 	int c = 5;
-	for (int x = -c; x <= c; ++x) {
+	/*for (int x = -c; x <= c; ++x) {
 		for (int z = -c; z <= c; ++z) {
 			addParticleEmitter(vec3(x, 0, z), 1,
 				vec3(0, 1, 0), 0,
@@ -107,7 +107,7 @@ int kore(int argc, char** argv) {
 		1, 1,
 		vec4(0, 0, 0, 1), vec4(1, 1, 1, 1),
 		vec4(0, 0, 0, 0), vec4(1, 1, 1, 0),
-		vec2(1, 1));
+		vec2(1, 1));*/
 
 	fireRocket(vec3(0, 0, 0), vec3(10, 0, 0));
 	fireRocket(vec3(0, 0, 0), vec3(-10, 0, 0));
