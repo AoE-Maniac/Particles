@@ -181,9 +181,19 @@ int addParticleEmitter(vec3 emitPos, float radius, vec3 emitDir, float spread, f
 	return -1;
 }
 
+void setParticleEmitterActive(int id, bool active) {
+	emitters[id].TTSNext = (active ? getRandom(emitters[id].TTSMin, emitters[id].TTSMax) : Kore::maxfloat());
+}
+
 void moveParticleEmitter(int id, vec3 emitPos, vec3 emitDir) {
 	emitters[id].Pos = emitPos;
 	emitters[id].Dir = emitDir;
+}
+
+void changeParticleEmission(int id, float spread, float minSpeed, float maxSpeed) {
+	emitters[id].Spread = spread;
+	emitters[id].SpeedMin = minSpeed;
+	emitters[id].SpeedMax = maxSpeed;
 }
 
 void deleteParticleEmitter(int id) {
