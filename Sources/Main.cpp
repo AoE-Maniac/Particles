@@ -67,7 +67,7 @@ int kore(int argc, char** argv) {
 	initParticleSystem();
 	initRockets();
 
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 100, 0, 0), 1);
+	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 10, 0, 0), 1);
 
 	int c = 5;
 	/*for (int x = -c; x <= c; ++x) {

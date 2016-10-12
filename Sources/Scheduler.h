@@ -9,12 +9,12 @@ struct Callback {
 
 	Callback(void(*f)(Kore::u8*), float p1, float p2, float p3, float p4, float p5, float p6) {
 		func = f;
-		param[0] = p1;
-		param[4] = p2;
-		param[8] = p3;
-		param[12] = p4;
-		param[16] = p5;
-		param[20] = p6;
+		((float*)param)[0] = p1;
+		((float*)param)[1] = p2;
+		((float*)param)[2] = p3;
+		((float*)param)[3] = p4;
+		((float*)param)[4] = p5;
+		((float*)param)[5] = p6;
 	}
 };
 
