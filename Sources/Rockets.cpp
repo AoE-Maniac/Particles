@@ -29,7 +29,7 @@ namespace {
 	};
 
 	const int MAX_ROCKETS = 100;
-	const float MIN_HEIGHT = 7.5f;
+	const float MIN_HEIGHT = 10; // 7.5f;
 	const float MAX_HEIGHT = 10;
 	const float SCALING = 0.33f;
 
@@ -127,7 +127,7 @@ void fireRocket(vec3 from, vec3 to) {
 		if ((to - from).z() > 0) angle = -angle;
 		rockets[currRockets].yAngle = angle;
 
-		rockets[currRockets].particleID = addParticleEmitter(from, 0.25f, vec3(0, 0, 0), 0.5f * pi, pi, -0.1f, -0.15f, -0.05f, -0.1f, 0.01f, 0.1f, 1.0f, 1.5f, 0.9f * SCALING, SCALING, vec4(1, 1, 1, 1), vec4(1, 1, 1, 1), vec4(1, 1, 1, 0), vec4(1, 1, 1, 0), vec2(0, 0));
+		rockets[currRockets].particleID = addParticleEmitter(from, 0.25f, vec3(0, 0, 0), 0.5f * pi, pi, -0.1f, -0.15f, -0.05f, -0.1f, 0.005f, 0.01f, 2.0f, 2.5f, 0.9f * SCALING, SCALING, vec4(0.5f, 0.5f, 0.5f, 0.5f), vec4(0.5f, 0.5f, 0.5f, 1), vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0), vec2(1, 0));
 		
 		++currRockets;
 	}
