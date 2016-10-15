@@ -3,6 +3,7 @@
 #include <Kore/System.h>
 #include <Kore/Math/Random.h>
 
+#include "Ground.h"
 #include "Particles.h"
 #include "Rockets.h"
 #include "Scheduler.h"
@@ -32,6 +33,7 @@ namespace {
 		Graphics::begin();
 		Graphics::clear(Graphics::ClearColorFlag | Graphics::ClearDepthFlag, 0xFFFFBD00, 1.0f);
 
+		renderGround(view, projection);
 		renderRockets(view, projection);
 		renderParticles(view, projection);
 
@@ -59,10 +61,11 @@ int kore(int argc, char** argv) {
 	options.rendererOptions.antialiasing = 0;
 	Kore::System::initWindow(options);
 
-	cameraStart = vec4(0, 0, 25); // cameraStart = vec4(0, 50, 1);
+	cameraStart = vec4(0, 2, 25); // cameraStart = vec4(0, 50, 1);
 	projection = mat4::Perspective(0.5f * pi, (float)width / height, 0.1f, 100.0f);
 
 	initScheduler();
+	initGround();
 	initParticleSystem();
 	initRockets();
 

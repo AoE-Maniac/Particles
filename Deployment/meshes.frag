@@ -3,10 +3,13 @@
 #extension GL_ARB_shading_language_420pack : require
 #endif
 
+uniform sampler2D text;
+
 out vec4 _gl_FragColor;
+in vec2 texCoord;
 
 void main()
 {
-    _gl_FragColor = vec4(1.0);
+    _gl_FragColor = texture(text, texCoord);
 }
 

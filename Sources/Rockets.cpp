@@ -44,6 +44,7 @@ namespace {
 	VertexStructure** structures;
 	VertexBuffer** vbs;
 	IndexBuffer* ib;
+	Texture* texture;
 	Mesh* mesh;
 
 	int currRockets;
@@ -71,6 +72,10 @@ void initRockets() {
 	program->setVertexShader(vertexShader);
 	program->setFragmentShader(fragmentShader);
 	program->link(structures, 2);
+
+	tex = program->getTextureUnit("text");
+	Graphics::setTextureAddressing(tex, U, Repeat);
+	Graphics::setTextureAddressing(tex, V, Repeat);
 	
 	mesh = loadObj("rocket.obj");
 
@@ -97,6 +102,8 @@ void initRockets() {
 		indices[i] = mesh->indices[i];
 	}
 	ib->unlock();
+
+	texture = new Texture("rocket.png", true);
 }
 
 void deleteRockets() {
@@ -212,15 +219,16 @@ void renderRockets(mat4 V, mat4 P) {
 	Graphics::setRenderState(DepthTestCompare, ZCompareLess);
 	Graphics::setRenderState(DepthWrite, true);
 
-	float* data = vbs[1]->lock();
 	mat4 PV = P * V;
+	float* data = vbs[1]->lock();
 	for (int i = 0; i < currRockets; ++i) {
 		mat4 M = mat4::Translation(rockets[i].currPos.x(), rockets[i].currPos.y(), rockets[i].currPos.z()) * mat4::Scale(SCALING, SCALING, SCALING);
 		
 		setMatrix(data, i, 0, 16, PV * M * mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi));
 	}
 	vbs[1]->unlock();
-	
+
+	Graphics::setTexture(tex, texture);
 	Graphics::setVertexBuffers(vbs, 2);
 	Graphics::setIndexBuffer(*ib);
 	Graphics::drawIndexedVerticesInstanced(currRockets);

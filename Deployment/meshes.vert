@@ -5,11 +5,13 @@
 
 in mat4 MVP;
 in vec3 pos;
+out vec2 texCoord;
 in vec2 tex;
 in vec3 nor;
 
 void main()
 {
     gl_Position = (MVP * vec4(pos, 1.0));
+    texCoord = tex;
 }
 

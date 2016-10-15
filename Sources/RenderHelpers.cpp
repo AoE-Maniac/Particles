@@ -17,6 +17,18 @@ void setVertex(float* data, int instanceIndex, int off, int size, float x, float
 	data[offset + 4] = v;
 }
 
+void setVertex(float* data, int instanceIndex, int off, int size, float x, float y, float z, float u, float v, float nx, float ny, float nz) {
+	int offset = off + instanceIndex * size;
+	data[offset + 0] = x;
+	data[offset + 1] = y;
+	data[offset + 2] = z;
+	data[offset + 3] = u;
+	data[offset + 4] = v;
+	data[offset + 5] = nx;
+	data[offset + 6] = ny;
+	data[offset + 7] = nz;
+}
+
 void setVec2(float* data, int instanceIndex, int off, int size, vec2 v) {
 	int offset = off + instanceIndex * size;
 	data[offset + 0] = v.x();
