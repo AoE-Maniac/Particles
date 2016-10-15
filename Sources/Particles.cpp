@@ -75,6 +75,34 @@ namespace {
 
 	int currParticles;
 	Particle* particles;
+
+	void emitParticle(int id) {
+		assert(currParticles < MAX_PARTICLES);
+
+		if (currParticles < MAX_PARTICLES) {
+			vec3 orthoVector = emitters[id].Dir.cross(vec3(0, 0, 1));
+			orthoVector = rotateAroundAxis(orthoVector, emitters[id].Dir, getRandom(0, 2 * pi));
+			vec3 nextPosition = emitters[id].Pos + orthoVector.normalize() * getRandom(0, emitters[id].Radius);
+
+			float nextAngle = getRandom(-emitters[id].Spread / 2, emitters[id].Spread / 2);
+			vec3 nextDirection = emitters[id].Dir + orthoVector * Kore::tan(nextAngle);
+			nextDirection = rotateAroundAxis(nextDirection, emitters[id].Dir, getRandom(0, 2 * pi)).normalize();
+
+			particles[currParticles].Grav = getRandom(emitters[id].GravMin, emitters[id].GravMax);
+			particles[currParticles].Size = getRandom(emitters[id].SizeMin, emitters[id].SizeMax);
+			particles[currParticles].TTLT = getRandom(emitters[id].TTLMin, emitters[id].TTLMax);
+			particles[currParticles].TTLR = particles[currParticles].TTLT;
+			particles[currParticles].RotS = getRandom(0, emitters[id].MaxRot);
+			particles[currParticles].RotE = getRandom(0, emitters[id].MaxRot);
+			particles[currParticles].TexOffset = emitters[id].TexOffset;
+			particles[currParticles].Pos = nextPosition;
+			particles[currParticles].Vel = nextDirection * getRandom(emitters[id].SpeedMin, emitters[id].SpeedMax);
+			particles[currParticles].ColorS = getRandom(emitters[id].ColorSMin, emitters[id].ColorSMax);
+			particles[currParticles].ColorE = getRandom(emitters[id].ColorEMin, emitters[id].ColorEMax);
+
+			++currParticles;
+		}
+	}
 }
 
 void initParticleSystem() {
@@ -181,6 +209,13 @@ int addParticleEmitter(vec3 emitPos, float radius, vec3 emitDir, float spread, f
 	return -1;
 }
 
+void burstParticleEmitter(int id, int particles) {
+	for (int i = 0; i < particles; ++i) {
+		emitParticle(id);
+	}
+	emitters[id].TTSNext =Kore::maxfloat();
+}
+
 void setParticleEmitterActive(int id, bool active) {
 	emitters[id].TTSNext = (active ? getRandom(emitters[id].TTSMin, emitters[id].TTSMax) : Kore::maxfloat());
 }
@@ -205,31 +240,6 @@ void updateParticleSystem(float deltaTime) {
 		emitters[i].TTSNext -= deltaTime;
 
 		if (emitters[i].Enabled && emitters[i].TTSNext <= 0) {
-			assert(currParticles < MAX_PARTICLES);
-
-			if (currParticles < MAX_PARTICLES) {
-				vec3 orthoVector = emitters[i].Dir.cross(vec3(0, 0, 1));
-				orthoVector = rotateAroundAxis(orthoVector, emitters[i].Dir, getRandom(0, 2 * pi));
-				vec3 nextPosition = emitters[i].Pos + orthoVector.normalize() * getRandom(0, emitters[i].Radius);
-
-				float nextAngle = getRandom(-emitters[i].Spread / 2, emitters[i].Spread / 2);
-				vec3 nextDirection = emitters[i].Dir + orthoVector * Kore::tan(nextAngle);
-				nextDirection = rotateAroundAxis(nextDirection, emitters[i].Dir, getRandom(0, 2 * pi)).normalize();
-				
-				particles[currParticles].Grav = getRandom(emitters[i].GravMin, emitters[i].GravMax);
-				particles[currParticles].Size = getRandom(emitters[i].SizeMin, emitters[i].SizeMax);
-				particles[currParticles].TTLT = getRandom(emitters[i].TTLMin, emitters[i].TTLMax);
-				particles[currParticles].TTLR = particles[currParticles].TTLT;
-				particles[currParticles].RotS = getRandom(0, emitters[i].MaxRot);
-				particles[currParticles].RotE = getRandom(0, emitters[i].MaxRot);
-				particles[currParticles].TexOffset = emitters[i].TexOffset;
-				particles[currParticles].Pos = nextPosition;
-				particles[currParticles].Vel = nextDirection * getRandom(emitters[i].SpeedMin, emitters[i].SpeedMax);
-				particles[currParticles].ColorS = getRandom(emitters[i].ColorSMin, emitters[i].ColorSMax);
-				particles[currParticles].ColorE = getRandom(emitters[i].ColorEMin, emitters[i].ColorEMax);
-
-				++currParticles;
-			}
 
 			emitters[i].TTSNext = getRandom(emitters[i].TTSMin, emitters[i].TTSMax);
 		}

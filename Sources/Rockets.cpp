@@ -140,54 +140,66 @@ void fireRocket(vec3 from, vec3 to) {
 
 void updateRockets(float deltaT) {
 	for (int i = 0; i < currRockets; ++i) {
-		if ((rockets[i].targetPos - rockets[i].currPos).getLength() <= 0.2f) {
-			--currRockets;
+		switch (rockets[i].phase) {
+		case 0:
+			rockets[i].currPos += vec3(0, 13.0f * SCALING * deltaT * 0.25f, 0);
+			if (rockets[i].currPos.y() >= 0) {
+				rockets[i].phase++;
+				setParticleEmitterActive(rockets[i].particleID, true);
 
-			deleteParticleEmitter(rockets[i].particleID);
-			rockets[i] = rockets[currRockets];
-
-			--i;
-		}
-		else {
-			switch (rockets[i].phase) {
-			case 0:
-				rockets[i].currPos += vec3(0, 13.0f * SCALING * deltaT * 0.25f, 0);
-				if (rockets[i].currPos.y() >= 0) {
-					rockets[i].phase++;
-					setParticleEmitterActive(rockets[i].particleID, true);
-
-					vec3 down = vec3(0, -1, 0);
-					moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 13.0f * SCALING, down);
-					changeParticleEmission(rockets[i].particleID, 2 * pi, 1.0f, 2.0f);
-				}
-				break;
-			case 1:
-				rockets[i].timer += deltaT;
-				if (rockets[i].timer > 1.5f) {
-					rockets[i].phase++;
-					changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
-				}
-				break;
-			case 2:
-				// Based on quadratic formula with two points given
-				// To improve performance, one could save d, x and toTarget separately
-				rockets[i].currPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
-				vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
-				float d = Kore::abs(toTarget.getLength());
-				float x = Kore::abs((rockets[i].currPos - rockets[i].startPos).getLength()) + deltaT;
-				float y = 4 * rockets[i].height * x * (1 - x / d) / d;
-
-				vec3 nextPos = toTarget.normalize() * x;
-				rockets[i].currPos = vec3(nextPos.x(), y, nextPos.z());
-				rockets[i].currRot = (1 - 2 * x / d);
-
-				// TODO: Cleanup, duplicate code with rendering
-				vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0));
-				dir = dir / dir.w();
-				vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
-				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + dir3 * 13.0f * SCALING, dir3);
-				break;
+				vec3 down = vec3(0, -1, 0);
+				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 13.0f * SCALING, down);
+				changeParticleEmission(rockets[i].particleID, 2 * pi, 1.0f, 2.0f);
 			}
+			break;
+		case 1:
+			rockets[i].timer += deltaT;
+			if (rockets[i].timer > 1.5f) {
+				rockets[i].phase++;
+				changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
+			}
+			break;
+		case 2: {
+			// Based on quadratic formula with two points given
+			// To improve performance, one could save d, x and toTarget separately
+			rockets[i].currPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
+			vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
+			float d = Kore::abs(toTarget.getLength());
+			float x = Kore::abs((rockets[i].currPos - rockets[i].startPos).getLength()) + deltaT;
+			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
+
+			vec3 nextPos = toTarget.normalize() * x;
+			rockets[i].currPos = vec3(nextPos.x(), y, nextPos.z());
+			rockets[i].currRot = (1 - 2 * x / d);
+
+			// TODO: Cleanup, duplicate code with rendering
+			vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0));
+			dir = dir / dir.w();
+			vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
+			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + dir3 * 13.0f * SCALING, dir3);
+
+			if ((rockets[i].targetPos - rockets[i].currPos).getLength() <= 0.2f) {
+				rockets[i].timer = 0.0f;
+				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
+				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
+				burstParticleEmitter(rockets[i].particleID, 250);
+				rockets[i].currPos = vec3(rockets[i].currPos.x(), -100, rockets[i].currPos.z());
+
+				rockets[i].phase++;
+			}
+			break;
+		}
+		case 3:
+			rockets[i].timer += deltaT;
+			if (rockets[i].timer > 1.5f) {
+				--currRockets;
+
+				deleteParticleEmitter(rockets[i].particleID);
+				rockets[i] = rockets[currRockets];
+
+				--i;
+			}
+			break;
 		}
 	}
 }
