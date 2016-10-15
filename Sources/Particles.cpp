@@ -240,6 +240,7 @@ void updateParticleSystem(float deltaTime) {
 		emitters[i].TTSNext -= deltaTime;
 
 		if (emitters[i].Enabled && emitters[i].TTSNext <= 0) {
+			emitParticle(i);
 
 			emitters[i].TTSNext = getRandom(emitters[i].TTSMin, emitters[i].TTSMax);
 		}
