@@ -87,6 +87,7 @@ namespace {
 
 			float nextAngle = getRandom(-emitters[id].Spread / 2, emitters[id].Spread / 2);
 			vec3 nextDirection = emitters[id].Dir + orthoVector * Kore::tan(nextAngle);
+			if (Kore::abs(nextAngle) > 0.5f * pi) nextDirection = -nextDirection;
 			nextDirection = rotateAroundAxis(nextDirection, emitters[id].Dir, getRandom(0, 2 * pi)).normalize();
 
 			particles[currParticles].Grav = getRandom(emitters[id].GravMin, emitters[id].GravMax);

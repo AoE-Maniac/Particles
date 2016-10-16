@@ -157,7 +157,7 @@ void updateRockets(float deltaT) {
 
 				vec3 down = vec3(0, -1, 0);
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 7.0f * SCALING, down);
-				changeParticleEmission(rockets[i].particleID, 2 * pi, 1.0f, 2.0f);
+				changeParticleEmission(rockets[i].particleID, pi, 1.0f, 2.0f);
 			}
 			break;
 		case 1:
