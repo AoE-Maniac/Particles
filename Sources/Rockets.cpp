@@ -176,7 +176,7 @@ void updateRockets(float deltaT) {
 			float x = Kore::abs((projPos - rockets[i].startPos).getLength()) + deltaT;
 			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
 
-			vec3 nextPos = toTarget.normalize() * x;
+			vec3 nextPos = rockets[i].startPos + toTarget.normalize() * x;
 			rockets[i].currPos = vec3(nextPos.x(), y + 9.0f * SCALING, nextPos.z());
 			rockets[i].currRot = (1 - 2 * x / d);
 
