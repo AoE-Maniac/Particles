@@ -190,7 +190,7 @@ void updateRockets(float deltaT) {
 				rockets[i].timer = 0.0f;
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
-				burstParticleEmitter(rockets[i].particleID, 250);
+				burstParticleEmitter(rockets[i].particleID, 500);
 				rockets[i].currPos = vec3(rockets[i].currPos.x(), -100, rockets[i].currPos.z());
 
 				rockets[i].phase++;
