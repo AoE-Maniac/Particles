@@ -129,7 +129,7 @@ void fireRocket(vec3 from, vec3 to) {
 		rockets[currRockets].currRot = 1.0f;
 		rockets[currRockets].timer = 0;
 		rockets[currRockets].startPos = from;
-		rockets[currRockets].currPos = from - vec3(0, 13.0f * SCALING, 0);
+		rockets[currRockets].currPos = from - vec3(0, 7.0f * SCALING, 0);
 		rockets[currRockets].targetPos = to;
 
 		vec3 a = vec3(1, 0, 0);
@@ -140,7 +140,7 @@ void fireRocket(vec3 from, vec3 to) {
 
 		rockets[currRockets].particleID = addParticleEmitter(from, 0.25f, vec3(0, 0, 0), 0.5f * pi, pi, 0.1f, 0.15f, -0.05f, -0.1f, 0.005f, 0.01f, 2.0f, 2.5f, 0.9f * SCALING, SCALING, vec4(0.5f, 0.5f, 0.5f, 0.5f), vec4(0.5f, 0.5f, 0.5f, 1), vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0), vec2(1, 0));
 		setParticleEmitterActive(rockets[currRockets].particleID, false);
-		
+
 		++currRockets;
 	}
 }
@@ -149,13 +149,13 @@ void updateRockets(float deltaT) {
 	for (int i = 0; i < currRockets; ++i) {
 		switch (rockets[i].phase) {
 		case 0:
-			rockets[i].currPos += vec3(0, 13.0f * SCALING * deltaT * 0.25f, 0);
-			if (rockets[i].currPos.y() >= 0) {
+			rockets[i].currPos += vec3(0, 14.0f * SCALING * deltaT * 0.25f, 0);
+			if (rockets[i].currPos.y() >= 9.0f * SCALING) {
 				rockets[i].phase++;
 				setParticleEmitterActive(rockets[i].particleID, true);
 
 				vec3 down = vec3(0, -1, 0);
-				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 13.0f * SCALING, down);
+				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 7.0f * SCALING, down);
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 1.0f, 2.0f);
 			}
 			break;
@@ -169,23 +169,23 @@ void updateRockets(float deltaT) {
 		case 2: {
 			// Based on quadratic formula with two points given
 			// To improve performance, one could save d, x and toTarget separately
-			rockets[i].currPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
+			vec3 projPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
 			vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
 			float d = Kore::abs(toTarget.getLength());
-			float x = Kore::abs((rockets[i].currPos - rockets[i].startPos).getLength()) + deltaT;
+			float x = Kore::abs((projPos - rockets[i].startPos).getLength()) + deltaT;
 			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
 
 			vec3 nextPos = toTarget.normalize() * x;
-			rockets[i].currPos = vec3(nextPos.x(), y, nextPos.z());
+			rockets[i].currPos = vec3(nextPos.x(), y + 9.0f * SCALING, nextPos.z());
 			rockets[i].currRot = (1 - 2 * x / d);
 
 			// TODO: Cleanup, duplicate code with rendering
 			vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0));
 			dir = dir / dir.w();
 			vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
-			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + dir3 * 13.0f * SCALING, dir3);
-
-			if ((rockets[i].targetPos - rockets[i].currPos).getLength() <= 0.2f) {
+			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + dir3 * 7.0f * SCALING, dir3);
+			
+			if ((rockets[i].targetPos - projPos).getLength() <= 0.2f && rockets[i].currPos.y() <= 8.0f * SCALING) {
 				rockets[i].timer = 0.0f;
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
@@ -222,9 +222,12 @@ void renderRockets(mat4 V, mat4 P) {
 	mat4 PV = P * V;
 	float* data = vbs[1]->lock();
 	for (int i = 0; i < currRockets; ++i) {
-		mat4 M = mat4::Translation(rockets[i].currPos.x(), rockets[i].currPos.y(), rockets[i].currPos.z()) * mat4::Scale(SCALING, SCALING, SCALING);
+		mat4 M = mat4::Translation(rockets[i].currPos.x(), rockets[i].currPos.y(), rockets[i].currPos.z())
+			* mat4::Scale(SCALING, SCALING, SCALING)
+			* mat4::RotationY(rockets[i].yAngle)
+			* mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi);
 		
-		setMatrix(data, i, 0, 16, PV * M * mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi));
+		setMatrix(data, i, 0, 16, PV * M);
 	}
 	vbs[1]->unlock();
 
