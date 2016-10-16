@@ -17,6 +17,7 @@ using namespace Kore;
 namespace {
 	struct Emitter {
 		bool Enabled;
+		bool Paused;
 		float Radius;
 		float Spread;
 		float MaxRot;
@@ -55,7 +56,7 @@ namespace {
 	};
 
 	const int MAX_EMITTERS = 200;
-	const int MAX_PARTICLES = 10000;
+	const int MAX_PARTICLES = MAX_EMITTERS * 500;
 
 	Program* program;
 	Shader* vertexShader;
@@ -179,6 +180,7 @@ int addParticleEmitter(vec3 emitPos, float radius, vec3 emitDir, float spread, f
 	for (int i = 0; i < MAX_EMITTERS; ++i) {
 		if (!emitters[i].Enabled || i > actualMaxEmitters) {
 			emitters[i].Enabled = true;
+			emitters[i].Paused = false;
 			emitters[i].Radius = radius;
 			emitters[i].Spread = spread;
 			emitters[i].MaxRot = maxRot;
@@ -213,11 +215,11 @@ void burstParticleEmitter(int id, int particles) {
 	for (int i = 0; i < particles; ++i) {
 		emitParticle(id);
 	}
-	emitters[id].TTSNext =Kore::maxfloat();
+	emitters[id].Paused = true;
 }
 
-void setParticleEmitterActive(int id, bool active) {
-	emitters[id].TTSNext = (active ? getRandom(emitters[id].TTSMin, emitters[id].TTSMax) : Kore::maxfloat());
+void pauseParticleEmitter(int id, bool pause) {
+	emitters[id].Paused = pause;
 }
 
 void moveParticleEmitter(int id, vec3 emitPos, vec3 emitDir) {
@@ -239,7 +241,7 @@ void updateParticleSystem(float deltaTime) {
 	for (int i = 0; i < actualMaxEmitters; ++i) {
 		emitters[i].TTSNext -= deltaTime;
 
-		if (emitters[i].Enabled && emitters[i].TTSNext <= 0) {
+		if (emitters[i].Enabled && !emitters[i].Paused && emitters[i].TTSNext <= 0) {
 			emitParticle(i);
 
 			emitters[i].TTSNext = getRandom(emitters[i].TTSMin, emitters[i].TTSMax);

@@ -140,7 +140,7 @@ void fireRocket(vec3 from, vec3 to) {
 		rockets[currRockets].yAngle = angle;
 
 		rockets[currRockets].particleID = addParticleEmitter(from, 0.25f, vec3(0, 0, 0), 0.5f * pi, pi, 0.1f, 0.15f, -0.05f, -0.1f, 0.005f, 0.01f, 2.0f, 2.5f, 0.9f * SCALING, SCALING, vec4(0.5f, 0.5f, 0.5f, 0.5f), vec4(0.5f, 0.5f, 0.5f, 1), vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0), vec2(1, 0));
-		setParticleEmitterActive(rockets[currRockets].particleID, false);
+		pauseParticleEmitter(rockets[currRockets].particleID, true);
 
 		++currRockets;
 	}
@@ -153,7 +153,7 @@ void updateRockets(float deltaT) {
 			rockets[i].currPos += vec3(0, 14.0f * SCALING * deltaT * 0.25f, 0);
 			if (rockets[i].currPos.y() >= 9.0f * SCALING) {
 				rockets[i].phase++;
-				setParticleEmitterActive(rockets[i].particleID, true);
+				pauseParticleEmitter(rockets[i].particleID, false);
 
 				vec3 down = vec3(0, -1, 0);
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + down * 7.0f * SCALING, down);
