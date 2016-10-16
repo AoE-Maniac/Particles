@@ -240,12 +240,14 @@ void deleteParticleEmitter(int id) {
 
 void updateParticleSystem(float deltaTime) {
 	for (int i = 0; i < actualMaxEmitters; ++i) {
-		emitters[i].TTSNext -= deltaTime;
+		if (emitters[i].Enabled && !emitters[i].Paused) {
+			emitters[i].TTSNext -= deltaTime;
 
-		if (emitters[i].Enabled && !emitters[i].Paused && emitters[i].TTSNext <= 0) {
-			emitParticle(i);
+			while (emitters[i].TTSNext <= 0) {
+				emitParticle(i);
 
-			emitters[i].TTSNext = getRandom(emitters[i].TTSMin, emitters[i].TTSMax);
+				emitters[i].TTSNext += getRandom(emitters[i].TTSMin, emitters[i].TTSMax);
+			}
 		}
 	}
 
