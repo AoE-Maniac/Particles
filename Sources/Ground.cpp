@@ -20,8 +20,6 @@ namespace {
 	Shader* fragmentShader;
 
 	TextureUnit tex;
-	ConstantLocation pLocation;
-	ConstantLocation vLocation;
 
 	VertexStructure** structures;
 	VertexBuffer** vbs;
@@ -43,6 +41,7 @@ void initGround() {
 
 	structures[1] = new VertexStructure();
 	structures[1]->add("MVP", Float4x4VertexData);
+	structures[1]->add("MIT", Float4x4VertexData);
 
 	program = new Program;
 	program->setVertexShader(vertexShader);
@@ -98,7 +97,9 @@ void renderGround(mat4 V, mat4 P) {
 		for (int z = 0; z < GROUND_SIZE; ++z) {
 			mat4 M = mat4::Translation(x - GROUND_SIZE / 2.0f, 0, z - GROUND_SIZE / 2.0f);
 			
-			setMatrix(data, x * GROUND_SIZE + z, 0, 16, PV * M);
+			int i = x * GROUND_SIZE + z;
+			setMatrix(data, i, 0, 32, PV * M);
+			setMatrix(data, i, 16, 32, M.Invert().Transpose());
 		}
 	}
 	vbs[1]->unlock();

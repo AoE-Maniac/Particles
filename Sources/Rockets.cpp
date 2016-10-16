@@ -67,6 +67,7 @@ void initRockets() {
 
 	structures[1] = new VertexStructure();
 	structures[1]->add("MVP", Float4x4VertexData);
+	structures[1]->add("MIT", Float4x4VertexData);
 
 	program = new Program;
 	program->setVertexShader(vertexShader);
@@ -227,7 +228,8 @@ void renderRockets(mat4 V, mat4 P) {
 			* mat4::RotationY(rockets[i].yAngle)
 			* mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi);
 		
-		setMatrix(data, i, 0, 16, PV * M);
+		setMatrix(data, i, 0, 32, PV * M);
+		setMatrix(data, i, 16, 32, M.Invert().Transpose());
 	}
 	vbs[1]->unlock();
 
