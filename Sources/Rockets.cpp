@@ -49,6 +49,13 @@ namespace {
 
 	int currRockets;
 	Rocket* rockets;
+
+	void updateExhaustPosition(int id) {
+		// TODO: Cleanup, duplicate code with rendering
+		vec4 dir = (mat4::RotationY(rockets[id].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[id].currRot * 0.5f * pi) * vec4(0, -1, 0, 1));
+		vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
+		moveParticleEmitter(rockets[id].particleID, rockets[id].currPos + dir3 * 7.0f * SCALING, dir3);
+	}
 }
 
 void initRockets() {
@@ -148,6 +155,9 @@ void fireRocket(vec3 from, vec3 to) {
 
 void updateRockets(float deltaT) {
 	for (int i = 0; i < currRockets; ++i) {
+		vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
+		float d = Kore::abs(toTarget.getLength());
+
 		switch (rockets[i].phase) {
 		case 0:
 			rockets[i].currPos += vec3(0, 14.0f * SCALING * deltaT * 0.25f, 0);
@@ -162,6 +172,10 @@ void updateRockets(float deltaT) {
 			break;
 		case 1:
 			rockets[i].timer += deltaT;
+
+			rockets[i].currRot = 1 - (rockets[i].timer / 1.5f) * (1 - 4 * rockets[i].height / d);
+			updateExhaustPosition(i);
+
 			if (rockets[i].timer > 1.5f) {
 				rockets[i].phase++;
 				changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
@@ -171,21 +185,15 @@ void updateRockets(float deltaT) {
 			// Based on quadratic formula with two points given
 			// To improve performance, one could save d, x and toTarget separately
 			vec3 projPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
-			vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
-			float d = Kore::abs(toTarget.getLength());
 			float x = Kore::abs((projPos - rockets[i].startPos).getLength()) + deltaT;
 			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
-
 			vec3 nextPos = rockets[i].startPos + toTarget.normalize() * x;
 			rockets[i].currPos = vec3(nextPos.x(), y + 9.0f * SCALING, nextPos.z());
-			rockets[i].currRot = (1 - 2 * x / d);
 
-			// TODO: Cleanup, duplicate code with rendering
-			vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0, 1));
-			vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
-			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos - dir3 * 7.0f * SCALING, dir3);
+			rockets[i].currRot = 4 * rockets[i].height * (1 - 2 * x / d) / d;
+			updateExhaustPosition(i);
 			
-			if ((rockets[i].targetPos - projPos).getLength() <= 0.2f && rockets[i].currPos.y() <= 8.0f * SCALING) {
+			if (rockets[i].currPos.y() <= 8.0f * SCALING) {
 				rockets[i].timer = 0.0f;
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
