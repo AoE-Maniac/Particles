@@ -181,10 +181,9 @@ void updateRockets(float deltaT) {
 			rockets[i].currRot = (1 - 2 * x / d);
 
 			// TODO: Cleanup, duplicate code with rendering
-			vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0));
-			dir = dir / dir.w();
+			vec4 dir = (mat4::RotationY(rockets[i].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi) * vec4(0, 1, 0, 1));
 			vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
-			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos + dir3 * 7.0f * SCALING, dir3);
+			moveParticleEmitter(rockets[i].particleID, rockets[i].currPos - dir3 * 7.0f * SCALING, dir3);
 			
 			if ((rockets[i].targetPos - projPos).getLength() <= 0.2f && rockets[i].currPos.y() <= 8.0f * SCALING) {
 				rockets[i].timer = 0.0f;
