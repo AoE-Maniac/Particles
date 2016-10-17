@@ -9,6 +9,7 @@
 #include <Kore/IO/FileReader.h>
 
 #include "RenderHelpers.h"
+#include "RandomHelpers.h"
 
 using namespace Kore;
 
@@ -81,6 +82,15 @@ void deleteGround() {
 	delete[] vbs[1];
 	delete[] vbs;
 	delete[] ib;
+}
+
+vec3 getRandomGroundPosition() {
+	return getRandomGroundPosition(getRandom(0, 2 * pi));
+	//return vec3(getRandom(-GROUND_SIZE / 2.0f, GROUND_SIZE / 2.0f), 0, getRandom(-GROUND_SIZE / 2.0f, GROUND_SIZE / 2.0f));
+}
+
+vec3 getRandomGroundPosition(float angle) {
+	return rotateAroundAxis(vec3(1, 0, 0), vec3(0, 1, 0), angle) * (GROUND_SIZE / 4.0f);
 }
 
 void renderGround(mat4 V, mat4 P) {
