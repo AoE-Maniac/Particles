@@ -8,7 +8,7 @@
 using namespace Kore;
 
 namespace {
-	const int MAX_TASKS = 100;
+	const int MAX_TASKS = 500;
 
 	double startTime;
 	double time;

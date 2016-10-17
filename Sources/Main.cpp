@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Kore/Log.h>
 #include <Kore/System.h>
 #include <Kore/Math/Random.h>
 
@@ -20,6 +21,7 @@ namespace {
 	
 	void update() {
 		float deltaT = updateScheduler();
+		log(LogLevel::Info, "%i FPS", (int) round(1 / deltaT));
 
 		vec4 newCameraPos = /*mat4::RotationY(System::time() / 4) **/ cameraStart;
 		view = mat4::lookAt(newCameraPos,
@@ -69,25 +71,26 @@ int kore(int argc, char** argv) {
 	initParticleSystem();
 	initRockets();
 
+	Random::init(System::time() * 100);
+	
 	/*int c = 5;
 	for (int x = -c; x <= c; ++x) {
 		for (int z = -c; z <= c; ++z) {
 			addParticleEmitter(vec3(x, 0, z), 1,
-				vec3(0, 1, 0), 0,
-				pi,
-				1, 2,
-				0, 0,
-				0.1f, 0.2f,
-				3, 5,
-				0.25f, 0.5f,
-				vec4(0.5f, 0, 0, 1), vec4(0.5f, 0.5f, 0, 1),
-				vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0),
-				vec2(0, 0));
+			vec3(0, 1, 0), 0,
+			pi,
+			1, 2,
+			0, 0,
+			0.1f, 0.2f,
+			3, 5,
+			0.25f, 0.5f,
+			vec4(0.5f, 0, 0, 1), vec4(0.5f, 0.5f, 0, 1),
+			vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0),
+			vec2(0, 0));
 		}
 	}*/
 
-
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 10, 0, 0), 1);
+	/*addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 10, 0, 0), 1);
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -10, 0, 0), 1);
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 0, 0, 10), 1);
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 0, 0, -10), 1);
@@ -95,11 +98,16 @@ int kore(int argc, char** argv) {
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -s, 0, -s), 1);
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -s, 0, s), 1);
 	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, s, 0, -s), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, s, 0, s), 1);
-	
-	Kore::System::setCallback(update);
+	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, s, 0, s), 1);*/
+	/*int steps = 43;//13;
+	for (int i = 1; i < 360; ++i) {
+		vec3 pos = getRandomGroundPosition(((steps * i) % 360) * pi / 180.0f);
+		addSchedulerTask(Callback(&fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()), i);
+	}*/
+	vec3 pos = getRandomGroundPosition(0);
+	addSchedulerTask(Callback(&fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()), 1);
 
-	Random::init(System::time() * 100);
+	Kore::System::setCallback(update);
 	Kore::System::start();
 
 	return 0;

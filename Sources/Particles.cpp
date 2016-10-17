@@ -55,7 +55,7 @@ namespace {
 		vec4 ColorE;
 	};
 
-	const int MAX_EMITTERS = 200;
+	const int MAX_EMITTERS = 360;
 	const int MAX_PARTICLES = MAX_EMITTERS * 500;
 
 	Program* program;
