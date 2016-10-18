@@ -192,7 +192,7 @@ void updateRockets(float deltaT) {
 
 			rockets[i].currRot = UPRIGHT_ROTATION - (rockets[i].timer / ANGLE_TIME) * (UPRIGHT_ROTATION - rockets[i].startAngle);
 
-			rockets[i].forward = getForward(rockets[i].yAngle, rockets[i].currRot);
+			rockets[i].forward = getForwardVector(rockets[i].yAngle, rockets[i].currRot);
 			updateExhaustPosition(i);
 
 			if (rockets[i].timer > ANGLE_TIME) {
@@ -214,7 +214,7 @@ void updateRockets(float deltaT) {
 
 			rockets[i].currRot = Kore::atan(4 * rockets[i].height * (1 - 2 * x / d) / d);
 
-			rockets[i].forward = getForward(rockets[i].yAngle, rockets[i].currRot);
+			rockets[i].forward = getForwardVector(rockets[i].yAngle, rockets[i].currRot);
 			updateExhaustPosition(i);
 			
 			if ((rockets[i].currPos + rockets[i].forward * 8.0f * SCALING).y() <= 0) {
