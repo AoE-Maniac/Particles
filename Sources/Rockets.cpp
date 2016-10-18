@@ -25,6 +25,8 @@ namespace {
 		float currRot;
 		float yAngle;
 		float timer;
+		float startAngle;
+		vec3 forward;
 		vec3 startPos;
 		vec3 currPos;
 		vec3 targetPos;
@@ -34,6 +36,9 @@ namespace {
 	const float MIN_HEIGHT = 10; // 7.5f;
 	const float MAX_HEIGHT = 10;
 	const float SCALING = 0.33f;
+	const float SPEED = 2.0f;
+	const float UPRIGHT_ROTATION = 0.5f * pi;
+	const float ANGLE_TIME = 3.5f;
 
 	Program* program;
 	Shader* vertexShader;
@@ -50,11 +55,17 @@ namespace {
 	int currRockets;
 	Rocket* rockets;
 
+	mat4 getRotationMatrix(float yAngle, float currRot) {
+		return mat4::RotationY(yAngle) * mat4::RotationZ(-0.5f * pi + currRot);
+	}
+
+	vec3 getForwardVector(float yAngle, float currRot) {
+		vec4 dir = getRotationMatrix(yAngle, currRot) * vec4(0, 1, 0, 1);
+		return vec3(dir.x(), dir.y(), dir.z()).normalize();
+	}
+
 	void updateExhaustPosition(int id) {
-		// TODO: Cleanup, duplicate code with rendering
-		vec4 dir = (mat4::RotationY(rockets[id].yAngle) * mat4::RotationZ(-0.5f * pi + rockets[id].currRot * 0.5f * pi) * vec4(0, -1, 0, 1));
-		vec3 dir3 = vec3(dir.x(), dir.y(), dir.z()).normalize();
-		moveParticleEmitter(rockets[id].particleID, rockets[id].currPos + dir3 * 7.0f * SCALING, dir3);
+		moveParticleEmitter(rockets[id].particleID, rockets[id].currPos - rockets[id].forward * 7.0f * SCALING, -rockets[id].forward);
 	}
 }
 
@@ -134,11 +145,15 @@ void fireRocket(vec3 from, vec3 to) {
 	if (currRockets < MAX_ROCKETS) {
 		rockets[currRockets].phase = 0;
 		rockets[currRockets].height = getRandom(MIN_HEIGHT, MAX_HEIGHT);
-		rockets[currRockets].currRot = 1.0f;
+		rockets[currRockets].currRot = UPRIGHT_ROTATION;
 		rockets[currRockets].timer = 0;
+		rockets[currRockets].forward = vec3(0, 1, 0);
 		rockets[currRockets].startPos = from;
-		rockets[currRockets].currPos = from - vec3(0, 7.0f * SCALING, 0);
+		rockets[currRockets].currPos = from - rockets[currRockets].forward * 7.0f * SCALING;
 		rockets[currRockets].targetPos = to;
+
+		float distance = (to - from).getLength();
+		rockets[currRockets].startAngle = Kore::atan(4 * rockets[currRockets].height / distance);
 
 		vec3 a = vec3(1, 0, 0);
 		vec3 b = (to - from).normalize();
@@ -163,6 +178,8 @@ void updateRockets(float deltaT) {
 			rockets[i].currPos += vec3(0, 14.0f * SCALING * deltaT * 0.25f, 0);
 			if (rockets[i].currPos.y() >= 9.0f * SCALING) {
 				rockets[i].phase++;
+				rockets[i].timer = 0;
+
 				pauseParticleEmitter(rockets[i].particleID, false);
 
 				vec3 down = vec3(0, -1, 0);
@@ -173,27 +190,34 @@ void updateRockets(float deltaT) {
 		case 1:
 			rockets[i].timer += deltaT;
 
-			rockets[i].currRot = 1 - (rockets[i].timer / 1.5f) * (1 - 4 * rockets[i].height / d);
+			rockets[i].currRot = UPRIGHT_ROTATION - (rockets[i].timer / ANGLE_TIME) * (UPRIGHT_ROTATION - rockets[i].startAngle);
+
+			rockets[i].forward = getForward(rockets[i].yAngle, rockets[i].currRot);
 			updateExhaustPosition(i);
 
-			if (rockets[i].timer > 1.5f) {
+			if (rockets[i].timer > ANGLE_TIME) {
 				rockets[i].phase++;
+				rockets[i].timer = 0;
+
 				changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
 			}
 			break;
 		case 2: {
+			rockets[i].timer += deltaT;
+
 			// Based on quadratic formula with two points given
 			// To improve performance, one could save d, x and toTarget separately
-			vec3 projPos = vec3(rockets[i].currPos.x(), 0, rockets[i].currPos.z());
-			float x = Kore::abs((projPos - rockets[i].startPos).getLength()) + deltaT;
+			float x = rockets[i].timer * SPEED;
 			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
 			vec3 nextPos = rockets[i].startPos + toTarget.normalize() * x;
 			rockets[i].currPos = vec3(nextPos.x(), y + 9.0f * SCALING, nextPos.z());
 
-			rockets[i].currRot = 4 * rockets[i].height * (1 - 2 * x / d) / d;
+			rockets[i].currRot = Kore::atan(4 * rockets[i].height * (1 - 2 * x / d) / d);
+
+			rockets[i].forward = getForward(rockets[i].yAngle, rockets[i].currRot);
 			updateExhaustPosition(i);
 			
-			if (rockets[i].currPos.y() <= 8.0f * SCALING) {
+			if ((rockets[i].currPos + rockets[i].forward * 8.0f * SCALING).y() <= 0) {
 				rockets[i].timer = 0.0f;
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
@@ -232,8 +256,7 @@ void renderRockets(mat4 V, mat4 P) {
 	for (int i = 0; i < currRockets; ++i) {
 		mat4 M = mat4::Translation(rockets[i].currPos.x(), rockets[i].currPos.y(), rockets[i].currPos.z())
 			* mat4::Scale(SCALING, SCALING, SCALING)
-			* mat4::RotationY(rockets[i].yAngle)
-			* mat4::RotationZ(-0.5f * pi + rockets[i].currRot * 0.5f * pi);
+			* getRotationMatrix(rockets[i].yAngle, rockets[i].currRot);
 		
 		setMatrix(data, i, 0, 32, PV * M);
 		setMatrix(data, i, 16, 32, M.Invert().Transpose());
