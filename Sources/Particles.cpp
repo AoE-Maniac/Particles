@@ -234,6 +234,14 @@ void changeParticleEmission(int id, float spread, float minSpeed, float maxSpeed
 	emitters[id].SpeedMax = maxSpeed;
 }
 
+void changeParticleTimes(int id, float rateMin, float rateMax, float minTtl, float maxTtl) {
+	emitters[id].TTLMin = minTtl;
+	emitters[id].TTLMax = maxTtl;
+	emitters[id].TTSMin = rateMin;
+	emitters[id].TTSMax = rateMax;
+	emitters[id].TTSNext = getRandom(rateMin, rateMax);
+}
+
 void deleteParticleEmitter(int id) {
 	emitters[id].Enabled = false;
 }

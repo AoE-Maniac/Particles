@@ -200,6 +200,8 @@ void updateRockets(float deltaT) {
 				rockets[i].timer = 0;
 
 				changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
+				//changeParticleEmission(rockets[i].particleID, 0.25f * pi, 1, 1.5f);
+				//changeParticleTimes(rockets[i].particleID, 0.0025f, 0.005f, 1.0f, 1.25f);
 			}
 			break;
 		case 2: {
@@ -221,6 +223,7 @@ void updateRockets(float deltaT) {
 				rockets[i].timer = 0.0f;
 				moveParticleEmitter(rockets[i].particleID, rockets[i].currPos, vec3(0, 1, 0));
 				changeParticleEmission(rockets[i].particleID, 2 * pi, 3.0f, 4.0f);
+				changeParticleTimes(rockets[i].particleID, 0.005f, 0.01f, 2.0f, 2.5f);
 				burstParticleEmitter(rockets[i].particleID, 500);
 				rockets[i].currPos = vec3(rockets[i].currPos.x(), -100, rockets[i].currPos.z());
 

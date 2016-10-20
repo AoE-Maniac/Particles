@@ -10,6 +10,7 @@ void pauseParticleEmitter(int id, bool pause);
 void burstParticleEmitter(int id, int particles);
 void moveParticleEmitter(int id, Kore::vec3 emitPos, Kore::vec3 emitDir);
 void changeParticleEmission(int id, float spread, float minSpeed, float maxSpeed);
+void changeParticleTimes(int id, float rateMin, float rateMax, float minTtl, float maxTtl);
 void deleteParticleEmitter(int id);
 void updateParticleSystem(float deltaTime);
 void renderParticles(Kore::mat4 V, Kore::mat4 P);
