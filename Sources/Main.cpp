@@ -35,7 +35,7 @@ namespace {
 		updateParticleSystem(deltaT);
 
 		Graphics::begin();
-		Graphics::clear(Graphics::ClearColorFlag | Graphics::ClearDepthFlag, 0xFFFFBD00, 1.0f);
+		Graphics::clear(Graphics::ClearColorFlag | Graphics::ClearDepthFlag, 0xFF7092BE, 1.0f);
 
 		renderGround(view, projection);
 		renderRockets(view, projection);
