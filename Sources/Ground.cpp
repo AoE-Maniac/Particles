@@ -109,26 +109,20 @@ void renderGround(mat4 V, mat4 P) {
 	Graphics::setRenderState(DepthTestCompare, ZCompareLess);
 	Graphics::setRenderState(DepthWrite, true);
 
-	mat4 PV = P * V;
 	float* data = vbs[1]->lock();
-	for (int x = 0; x < GROUND_SIZE; ++x) {
-		for (int z = 0; z < GROUND_SIZE; ++z) {
-			mat4 M = mat4::Translation(x - GROUND_SIZE / 2.0f, 0, z - GROUND_SIZE / 2.0f);
-			
-			//mat4 MIT = M.Invert().Transpose();
-			mat4 MIT = mat4::Identity();
-			MIT.Set(3, 0, - (x - GROUND_SIZE / 2.0f));
-			MIT.Set(3, 2, - (z - GROUND_SIZE / 2.0f));
-			
-			int i = x * GROUND_SIZE + z;
-			setMatrix(data, i, 0, 32, PV * M);
-			setMatrix(data, i, 16, 32, MIT);
-		}
-	}
+	
+	mat4 M = mat4::Scale(GROUND_SIZE, 1, GROUND_SIZE);
+	
+	//mat4 MIT = M.Invert().Transpose();
+	mat4 MIT = mat4::Scale(GROUND_SIZE, 1, GROUND_SIZE);
+	
+	setMatrix(data, 0, 0, 32, P * V * M);
+	setMatrix(data, 0, 16, 32, MIT);
+	
 	vbs[1]->unlock();
 
 	Graphics::setTexture(tex, texture);
 	Graphics::setVertexBuffers(vbs, 2);
 	Graphics::setIndexBuffer(*ib);
-	Graphics::drawIndexedVerticesInstanced(GROUND_SIZE * GROUND_SIZE);
+	Graphics::drawIndexedVerticesInstanced(1);
 }

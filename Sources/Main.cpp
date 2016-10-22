@@ -25,12 +25,6 @@ namespace {
 		float deltaT = updateScheduler();
 		log(LogLevel::Info, "%i FPS", (int) round(1 / deltaT));
 
-		vec4 newCameraPos = /*mat4::RotationY(System::time() / 4) **/ cameraStart;
-		view = mat4::lookAt(newCameraPos,
-			vec3(0, 0, 0),
-			vec3(0, 0, -1)
-		);
-		
 		updateRockets(deltaT);
 		updateParticleSystem(deltaT);
 
@@ -114,7 +108,10 @@ int kore(int argc, char** argv) {
 	options.rendererOptions.antialiasing = 0;
 	Kore::System::initWindow(options);
 
-	cameraStart = vec4(0, 30, 25); // cameraStart = vec4(0, 2, 25); // cameraStart = vec4(0, 50, 1);
+	view = mat4::lookAt(vec4(0, 30, 25), // vec4(0, 2, 25), // vec4(0, 50, 1),
+		vec3(0, 0, 0),
+		vec3(0, 0, -1)
+	);
 	projection = mat4::Perspective(0.5f * pi, (float)width / height, 0.1f, 100.0f);
 
 	initScheduler();
