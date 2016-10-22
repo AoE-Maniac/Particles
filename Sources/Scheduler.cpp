@@ -57,6 +57,7 @@ void addSchedulerTask(Task task) {
 	assert(newTaskCount < MAX_TASKS);
 
 	if (newTaskCount < MAX_TASKS) {
+		task.time += time;
 		newTaskList[newTaskCount++] = task;
 	}
 }
@@ -84,9 +85,6 @@ float updateScheduler() {
 		}
 	}
 	currTaskCount -= toDelete;
-
-
-
 
 	return deltaT;
 }
