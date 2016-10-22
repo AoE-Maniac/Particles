@@ -179,7 +179,7 @@ int addParticleEmitter(vec3 emitPos, float radius, vec3 emitDir, float spread, f
 	assert(actualMaxEmitters < MAX_EMITTERS);
 
 	for (int i = 0; i < MAX_EMITTERS; ++i) {
-		if (!emitters[i].Enabled || i > actualMaxEmitters) {
+		if (!emitters[i].Enabled || i == actualMaxEmitters) {
 			emitters[i].Enabled = true;
 			emitters[i].Paused = false;
 			emitters[i].Radius = radius;
