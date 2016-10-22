@@ -56,7 +56,7 @@ namespace {
 	};
 
 	const int MAX_EMITTERS = 360;
-	const int MAX_PARTICLES = MAX_EMITTERS * 500;
+	const int MAX_PARTICLES = MAX_EMITTERS * 1000;
 
 	Program* program;
 	Shader* vertexShader;
