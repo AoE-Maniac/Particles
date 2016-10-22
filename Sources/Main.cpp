@@ -90,22 +90,24 @@ int kore(int argc, char** argv) {
 		}
 	}*/
 
-	/*addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 10, 0, 0), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -10, 0, 0), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 0, 0, 10), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, 0, 0, -10), 1);
+	/*addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 10, 0, 0));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -10, 0, 0));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 0, 0, 10));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 0, 0, -10));
 	float s = Kore::sqrt(50);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -s, 0, -s), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, -s, 0, s), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, s, 0, -s), 1);
-	addSchedulerTask(Callback(&fireRocketRaw, 0, 0, 0, s, 0, s), 1);*/
-	/*int steps = 43;//13;
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -s, 0, -s));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -s, 0, s));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, s, 0, -s));
+	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, s, 0, s));*/
+	int steps = 1;//13;
 	for (int i = 1; i < 360; ++i) {
 		vec3 pos = getRandomGroundPosition(((steps * i) % 360) * pi / 180.0f);
-		addSchedulerTask(Callback(&fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()), i);
-	}*/
-	vec3 pos = getRandomGroundPosition(0);
-	addSchedulerTask(Callback(&fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()), 1);
+		vec3 pos2 = getRandomGroundPosition(((steps * i) % 360 + 200) * pi / 180.0f);
+		addSchedulerTask(Task(0, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
+		//addSchedulerTask(Task(1 + 0 * i, &fireRocketRaw, pos.x(), 0, pos.z(), pos2.x(), 0, pos2.z()));
+	}
+	//vec3 pos = getRandomGroundPosition(0);
+	//addSchedulerTask(Task(1, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
 
 	Kore::System::setCallback(update);
 	Kore::System::start();

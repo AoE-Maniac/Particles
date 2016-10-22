@@ -1,13 +1,15 @@
 #pragma once
 
-struct Callback {
+struct Task {
+	float time;
 	void (*func)(Kore::u8*);
 	Kore::u8 param[256];
 
 
-	Callback() { }
+	Task() { }
 
-	Callback(void(*f)(Kore::u8*), float p1, float p2, float p3, float p4, float p5, float p6) {
+	Task(float t, void(*f)(Kore::u8*), float p1, float p2, float p3, float p4, float p5, float p6) {
+		time = t;
 		func = f;
 		((float*)param)[0] = p1;
 		((float*)param)[1] = p2;
@@ -21,5 +23,5 @@ struct Callback {
 void initScheduler();
 void deleteScheduler();
 
-void addSchedulerTask(Callback callback, float time);
+void addSchedulerTask(Task task);
 float updateScheduler();

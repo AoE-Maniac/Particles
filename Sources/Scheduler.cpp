@@ -13,42 +13,51 @@ namespace {
 	double startTime;
 	double time;
 
-	int currTasks;
-	float* taskTimes;
-	Callback* taskCallbacks;
+	int currTaskCount;
+	Task* currTaskList;
+
+	int newTaskCount;
+	Task* newTaskList;
+
+	void insertSchedulerTask(Task task) {
+		assert(currTaskCount < MAX_TASKS);
+
+		if (currTaskCount < MAX_TASKS) {
+			for (int i = currTaskCount - 1; i >= -1; --i) {
+				if (i != -1 && currTaskList[i].time > time) {
+					currTaskList[i + 1] = currTaskList[i];
+				}
+				else {
+					currTaskList[i + 1] = task;
+					break;
+				}
+			}
+
+			++currTaskCount;
+		}
+	}
 }
 
 void initScheduler() {
 	startTime = System::time();
 	time = 0;
 
-	currTasks = 0;
-	taskTimes = new float[MAX_TASKS];
-	taskCallbacks = new Callback[MAX_TASKS];
+	currTaskCount = 0;
+	currTaskList = new Task[MAX_TASKS];
+	newTaskCount = 0;
+	newTaskList = new Task[MAX_TASKS];
 }
 
 void deleteScheduler() {
-	delete[] taskTimes;
-	delete[] taskCallbacks;
+	delete[] currTaskList;
+	delete[] newTaskList;
 }
 
-void addSchedulerTask(Callback callback, float time) {
-	assert(currTasks < MAX_TASKS);
+void addSchedulerTask(Task task) {
+	assert(newTaskCount < MAX_TASKS);
 
-	if (currTasks < MAX_TASKS) {
-		for (int i = currTasks - 1; i >= -1; --i) {
-			if (i != -1 && taskTimes[i] > time) {
-				taskTimes[i + 1] = taskTimes[i];
-				taskCallbacks[i + 1] = taskCallbacks[i];
-			}
-			else {
-				taskTimes[i + 1] = time;
-				taskCallbacks[i + 1] = callback;
-				break;
-			}
-		}
-
-		++currTasks;
+	if (newTaskCount < MAX_TASKS) {
+		newTaskList[newTaskCount++] = task;
 	}
 }
 
@@ -57,21 +66,27 @@ float updateScheduler() {
 	double deltaT = t - time;
 	time = t;
 
+	for (int i = 0; i < newTaskCount; ++i) {
+		insertSchedulerTask(newTaskList[i]);
+	}
+	newTaskCount = 0;
+
 	int toDelete = 0;
-	for (int i = 0; i < currTasks; ++i) {
-		if (taskTimes[i] <= time) {
-			taskCallbacks[i].func(taskCallbacks[i].param);
+	for (int i = 0; i < currTaskCount; ++i) {
+		if (currTaskList[i].time <= time) {
+			currTaskList[i].func(currTaskList[i].param);
 			++toDelete;
 		}
 		else {
 			if (toDelete == 0) break;
 
-			taskTimes[i - toDelete] = taskTimes[i];
-			taskCallbacks[i - toDelete] = taskCallbacks[i];
+			currTaskList[i - toDelete] = currTaskList[i];
 		}
 	}
+	currTaskCount -= toDelete;
 
-	currTasks -= toDelete;
+
+
 
 	return deltaT;
 }
