@@ -5,6 +5,8 @@
 void initGround();
 void deleteGround();
 
-Kore::vec3 getRandomGroundPosition();
-Kore::vec3 getRandomGroundPosition(float angle);
+Kore::vec3 getRandomPosition();
+Kore::vec3 getRandomSidePosition(bool left);
+Kore::vec3 getRandomCirclePosition();
+Kore::vec3 getCirclePosition(float angle);
 void renderGround(Kore::mat4 V, Kore::mat4 P);

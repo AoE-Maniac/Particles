@@ -32,9 +32,9 @@ namespace {
 		vec3 targetPos;
 	};
 
-	const int MAX_ROCKETS = 100;
-	const float MIN_HEIGHT = 10; // 7.5f;
-	const float MAX_HEIGHT = 10;
+	const int MAX_ROCKETS = 360;
+	const float MIN_HEIGHT = 15; // 10;
+	const float MAX_HEIGHT = 15;
 	const float SCALING = 0.33f;
 	const float SPEED = 2.0f;
 	const float UPRIGHT_ROTATION = 0.5f * pi;
@@ -55,6 +55,9 @@ namespace {
 	int currRockets;
 	Rocket* rockets;
 
+	bool reportedEmpty;
+	void (*emptyCallback)();
+
 	mat4 getRotationMatrix(float yAngle, float currRot) {
 		return mat4::RotationY(yAngle) * mat4::RotationZ(-0.5f * pi + currRot);
 	}
@@ -69,7 +72,10 @@ namespace {
 	}
 }
 
-void initRockets() {
+void initRockets(void (*emptyFunc)()) {
+	emptyCallback = emptyFunc;
+	reportedEmpty = true;
+
 	rockets = new Rocket[MAX_ROCKETS];
 
 	FileReader vs("meshes.vert");
@@ -164,6 +170,7 @@ void fireRocket(vec3 from, vec3 to) {
 		rockets[currRockets].particleID = addParticleEmitter(from, 0.25f, vec3(0, 0, 0), 0.5f * pi, pi, 0.1f, 0.15f, -0.05f, -0.1f, 0.005f, 0.01f, 2.0f, 2.5f, 0.9f * SCALING, SCALING, vec4(0.5f, 0.5f, 0.5f, 0.5f), vec4(0.5f, 0.5f, 0.5f, 1), vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0), vec2(1, 0));
 		pauseParticleEmitter(rockets[currRockets].particleID, true);
 
+		reportedEmpty = false;
 		++currRockets;
 	}
 }
@@ -205,7 +212,7 @@ void updateRockets(float deltaT) {
 			}
 			break;
 		case 2: {
-			rockets[i].timer += deltaT;
+			rockets[i].timer += deltaT * 1.5f;
 
 			// Based on quadratic formula with two points given
 			// To improve performance, one could save d, x and toTarget separately
@@ -243,6 +250,11 @@ void updateRockets(float deltaT) {
 			}
 			break;
 		}
+	}
+
+	if (currRockets == 0 && !reportedEmpty) {
+		reportedEmpty = true;
+		emptyCallback();
 	}
 }
 

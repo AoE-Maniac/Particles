@@ -2,7 +2,7 @@
 
 #include <Kore/Graphics/Graphics.h>
 
-void initRockets();
+void initRockets(void(*emptyFunc)());
 void deleteRockets();
 
 void fireRocketRaw(Kore::u8* params);

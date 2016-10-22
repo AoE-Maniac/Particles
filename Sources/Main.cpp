@@ -14,7 +14,9 @@ using namespace Kore;
 namespace {
 	const int width = 1024;
 	const int height = 768;
+	const float delay = 1;
 
+	int pattern;
 	vec4 cameraStart;
 	mat4 view;
 	mat4 projection;
@@ -26,7 +28,7 @@ namespace {
 		vec4 newCameraPos = /*mat4::RotationY(System::time() / 4) **/ cameraStart;
 		view = mat4::lookAt(newCameraPos,
 			vec3(0, 0, 0),
-			vec3(0, 1, 0)
+			vec3(0, 0, -1)
 		);
 		
 		updateRockets(deltaT);
@@ -41,6 +43,55 @@ namespace {
 
 		Graphics::end();
 		Graphics::swapBuffers();
+	}
+
+	void startNextPattern() {
+		pattern = (pattern + 1) % 5;
+		
+		switch (pattern) {
+		case 0: {
+			// Longer series
+			int steps = 43;
+			for (int i = 0; i < 36; ++i) {
+				vec3 pos = getCirclePosition(((steps * i) % 360) * pi / 180.0f);
+				addSchedulerTask(Task(delay + 1.5f * i, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
+			}
+			break;
+		}
+		case 1: {
+			// Single rocket to show animation
+			vec3 pos = getCirclePosition(0);
+			addSchedulerTask(Task(delay, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
+			break;
+		}
+		case 2: {
+			// "Realistic" flight paths
+			for (int i = 0; i < 100; ++i) {
+				vec3 pos = getRandomSidePosition(i % 2 == 0);
+				vec3 pos2 = getRandomSidePosition(i % 2 == 1);
+				addSchedulerTask(Task(delay + 0.1f * i, &fireRocketRaw, pos.x(), 0, pos.z(), pos2.x(), 0, pos2.z()));
+			}
+			break;
+		}
+		case 3: {
+			// Expanding pattern
+			for (int i = 0; i < 16; ++i) {
+				vec3 pos = getCirclePosition(22.5f * i * pi / 180.0f);
+				addSchedulerTask(Task(delay, &fireRocketRaw, 0, 0, 0, pos.x(), 0, pos.z()));
+			}
+			break;
+		}
+		case 4: {
+			// Contracting pattern, max amount of rockets at the same time
+			int steps = 1;
+			for (int i = 0; i < 360; ++i) {
+				vec3 pos = getCirclePosition(((steps * i) % 360) * pi / 180.0f);
+				vec3 pos2 = getCirclePosition(((steps * i) % 360 + 200) * pi / 180.0f);
+				addSchedulerTask(Task(delay, &fireRocketRaw, pos.x(), 0, pos.z(), pos2.x(), 0, pos2.z()));
+			}
+			break;
+		}
+		}
 	}
 }
 
@@ -63,51 +114,18 @@ int kore(int argc, char** argv) {
 	options.rendererOptions.antialiasing = 0;
 	Kore::System::initWindow(options);
 
-	cameraStart = vec4(0, 2, 25); // cameraStart = vec4(0, 50, 1);
+	cameraStart = vec4(0, 30, 25); // cameraStart = vec4(0, 2, 25); // cameraStart = vec4(0, 50, 1);
 	projection = mat4::Perspective(0.5f * pi, (float)width / height, 0.1f, 100.0f);
 
 	initScheduler();
 	initGround();
 	initParticleSystem();
-	initRockets();
+	initRockets(&startNextPattern);
 
 	Random::init(System::time() * 100);
-	
-	/*int c = 5;
-	for (int x = -c; x <= c; ++x) {
-		for (int z = -c; z <= c; ++z) {
-			addParticleEmitter(vec3(x, 0, z), 1,
-			vec3(0, 1, 0), 0,
-			pi,
-			1, 2,
-			0, 0,
-			0.1f, 0.2f,
-			3, 5,
-			0.25f, 0.5f,
-			vec4(0.5f, 0, 0, 1), vec4(0.5f, 0.5f, 0, 1),
-			vec4(0.5f, 0.5f, 0.5f, 0), vec4(0.5f, 0.5f, 0.5f, 0),
-			vec2(0, 0));
-		}
-	}*/
 
-	/*addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 10, 0, 0));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -10, 0, 0));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 0, 0, 10));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, 0, 0, -10));
-	float s = Kore::sqrt(50);
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -s, 0, -s));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, -s, 0, s));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, s, 0, -s));
-	addSchedulerTask(Task(1, &fireRocketRaw, 0, 0, 0, s, 0, s));*/
-	int steps = 1;//13;
-	for (int i = 1; i < 360; ++i) {
-		vec3 pos = getRandomGroundPosition(((steps * i) % 360) * pi / 180.0f);
-		vec3 pos2 = getRandomGroundPosition(((steps * i) % 360 + 200) * pi / 180.0f);
-		addSchedulerTask(Task(0, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
-		//addSchedulerTask(Task(1 + 0 * i, &fireRocketRaw, pos.x(), 0, pos.z(), pos2.x(), 0, pos2.z()));
-	}
-	//vec3 pos = getRandomGroundPosition(0);
-	//addSchedulerTask(Task(1, &fireRocketRaw, pos.x(), 0, pos.z(), -pos.x(), 0, -pos.z()));
+	pattern = 0;
+	startNextPattern();
 
 	Kore::System::setCallback(update);
 	Kore::System::start();

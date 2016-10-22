@@ -14,7 +14,8 @@
 using namespace Kore;
 
 namespace {
-	const int GROUND_SIZE = 100;
+	const int GROUND_SIZE = 400;
+	const float INNER_GROUND_SIZE = GROUND_SIZE / 16.0f;
 
 	Program* program;
 	Shader* vertexShader;
@@ -84,13 +85,20 @@ void deleteGround() {
 	delete[] ib;
 }
 
-vec3 getRandomGroundPosition() {
-	return getRandomGroundPosition(getRandom(0, 2 * pi));
-	//return vec3(getRandom(-GROUND_SIZE / 2.0f, GROUND_SIZE / 2.0f), 0, getRandom(-GROUND_SIZE / 2.0f, GROUND_SIZE / 2.0f));
+vec3 getRandomPosition() {
+	return vec3(getRandom(-INNER_GROUND_SIZE, INNER_GROUND_SIZE), 0, getRandom(-INNER_GROUND_SIZE, INNER_GROUND_SIZE));
 }
 
-vec3 getRandomGroundPosition(float angle) {
-	return rotateAroundAxis(vec3(1, 0, 0), vec3(0, 1, 0), angle) * (GROUND_SIZE / 4.0f);
+vec3 getRandomSidePosition(bool left) {
+	return vec3((left ? -INNER_GROUND_SIZE : INNER_GROUND_SIZE), 0, getRandom(-INNER_GROUND_SIZE, INNER_GROUND_SIZE));
+}
+
+vec3 getRandomCirclePosition() {
+	return getCirclePosition(getRandom(0, 2 * pi));
+}
+
+vec3 getCirclePosition(float angle) {
+	return rotateAroundAxis(vec3(1, 0, 0), vec3(0, 1, 0), angle) * INNER_GROUND_SIZE;
 }
 
 void renderGround(mat4 V, mat4 P) {
