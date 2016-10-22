@@ -24,7 +24,7 @@ namespace {
 
 		if (currTaskCount < MAX_TASKS) {
 			for (int i = currTaskCount - 1; i >= -1; --i) {
-				if (i != -1 && currTaskList[i].time > time) {
+				if (i != -1 && currTaskList[i].time > task.time) {
 					currTaskList[i + 1] = currTaskList[i];
 				}
 				else {
