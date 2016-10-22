@@ -23,7 +23,7 @@ namespace {
 	
 	void update() {
 		float deltaT = updateScheduler();
-		log(LogLevel::Info, "%i FPS", (int) round(1 / deltaT));
+		log(LogLevel::Info, "%i FPS", (int) Kore::round(1 / deltaT));
 
 		updateRockets(deltaT);
 		updateParticleSystem(deltaT);
