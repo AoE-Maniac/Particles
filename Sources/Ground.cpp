@@ -112,11 +112,10 @@ void renderGround(mat4 V, mat4 P) {
 	float* data = vbs[1]->lock();
 	
 	mat4 M = mat4::Scale(GROUND_SIZE, 1, GROUND_SIZE);
-	
-	//mat4 MIT = M.Invert().Transpose();
-	mat4 MIT = mat4::Scale(GROUND_SIZE, 1, GROUND_SIZE);
-	
 	setMatrix(data, 0, 0, 32, P * V * M);
+
+	// Optimization: Since this is just a scaling op, instead of mat4 MIT = M.Invert().Transpose();
+	mat4 MIT = mat4::Scale(1.0f / GROUND_SIZE, 1, 1.0f / GROUND_SIZE);
 	setMatrix(data, 0, 16, 32, MIT);
 	
 	vbs[1]->unlock();

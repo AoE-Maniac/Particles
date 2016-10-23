@@ -108,7 +108,7 @@ int kore(int argc, char** argv) {
 	options.rendererOptions.antialiasing = 0;
 	Kore::System::initWindow(options);
 
-	view = mat4::lookAt(vec4(0, 30, 25), // vec4(0, 2, 25), // vec4(0, 50, 1),
+	view = mat4::lookAt(vec4(0, 30, 25),
 		vec3(0, 0, 0),
 		vec3(0, 0, -1)
 	);

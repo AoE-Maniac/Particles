@@ -291,24 +291,21 @@ void renderParticles(mat4 V, mat4 P) {
 	view.Set(1, 3, 0.0f);
 	view.Set(2, 3, 0.0f);
 
-	int alive = 0;
 	float* data = vbs[1]->lock();
 	for (int i = 0; i < currParticles; ++i) {
 		float a = particles[i].TTLR / particles[i].TTLT;
 
 		mat4 M = mat4::Translation(particles[i].Pos.x(), particles[i].Pos.y(), particles[i].Pos.z()) * mat4::Scale(particles[i].Size, particles[i].Size, particles[i].Size);
-		setMatrix(data, alive, 0, 22, M * view * mat4::RotationZ(particles[i].RotS * a + particles[i].RotE * (1 - a)));
+		setMatrix(data, i, 0, 22, M * view * mat4::RotationZ(particles[i].RotS * a + particles[i].RotE * (1 - a)));
 		
-		setVec4(data, alive, 16, 22, particles[i].ColorS * a + particles[i].ColorE * (1 - a));
+		setVec4(data, i, 16, 22, particles[i].ColorS * a + particles[i].ColorE * (1 - a));
 
-		setVec2(data, alive, 20, 22, particles[i].TexOffset);
-
-		++alive;
+		setVec2(data, i, 20, 22, particles[i].TexOffset);
 	}
 	vbs[1]->unlock();
 
 	Graphics::setTexture(tex, texture);
 	Graphics::setVertexBuffers(vbs, 2);
 	Graphics::setIndexBuffer(*ib);
-	Graphics::drawIndexedVerticesInstanced(alive);
+	Graphics::drawIndexedVerticesInstanced(currParticles);
 }

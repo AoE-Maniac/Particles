@@ -1,5 +1,6 @@
 /*
 .obj importer written by Florian Mehm and Robert Konrad
+used with permission
 */
 
 #include "pch.h"

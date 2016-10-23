@@ -33,7 +33,7 @@ namespace {
 	};
 
 	const int MAX_ROCKETS = 360;
-	const float MIN_HEIGHT = 15; // 10;
+	const float MIN_HEIGHT = 15;
 	const float MAX_HEIGHT = 15;
 	const float SCALING = 0.33f;
 	const float SPEED = 2.0f;
@@ -177,6 +177,7 @@ void fireRocket(vec3 from, vec3 to) {
 
 void updateRockets(float deltaT) {
 	for (int i = 0; i < currRockets; ++i) {
+		// To improve performance, one could calculate toTarget and d once and store it separately
 		vec3 toTarget = rockets[i].targetPos - rockets[i].startPos;
 		float d = Kore::abs(toTarget.getLength());
 
@@ -207,20 +208,19 @@ void updateRockets(float deltaT) {
 				rockets[i].timer = 0;
 
 				changeParticleEmission(rockets[i].particleID, 0.5f * pi, 0.1f, 0.15f);
-				//changeParticleEmission(rockets[i].particleID, 0.25f * pi, 1, 1.5f);
-				//changeParticleTimes(rockets[i].particleID, 0.0025f, 0.005f, 1.0f, 1.25f);
 			}
 			break;
 		case 2: {
 			rockets[i].timer += deltaT * 1.5f;
 
-			// Based on quadratic formula with two points given
-			// To improve performance, one could save d, x and toTarget separately
+			// Based on quadratic formula with three points given (start, end, inbetwee)
+			// Coordinate system is 2D, with the origin at startPos and the x-axis going through targetPos
 			float x = rockets[i].timer * SPEED;
 			float y = 4 * rockets[i].height * x * (1 - x / d) / d;
 			vec3 nextPos = rockets[i].startPos + toTarget.normalize() * x;
 			rockets[i].currPos = vec3(nextPos.x(), y + 9.0f * SCALING, nextPos.z());
 
+			// Based on the first derivative of the formula above
 			rockets[i].currRot = Kore::atan(4 * rockets[i].height * (1 - 2 * x / d) / d);
 
 			rockets[i].forward = getForwardVector(rockets[i].yAngle, rockets[i].currRot);
