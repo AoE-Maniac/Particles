@@ -66,8 +66,8 @@ namespace {
 	ConstantLocation pLocation;
 	ConstantLocation vLocation;
 
-	VertexStructure** structures;
-	VertexBuffer** vbs;
+	VertexStructure* structures[2];
+	VertexBuffer* vbs[2];
 	IndexBuffer* ib;
 	Texture* texture;
 
@@ -119,7 +119,6 @@ void initParticleSystem() {
 	FileReader fs("particles.frag");
 	fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
 
-	structures = new VertexStructure*[2];
 	structures[0] = new VertexStructure();
 	structures[0]->add("pos", Float3VertexData);
 	structures[0]->add("tex", Float2VertexData);
@@ -141,7 +140,6 @@ void initParticleSystem() {
 	Graphics::setTextureAddressing(tex, U, Repeat);
 	Graphics::setTextureAddressing(tex, V, Repeat);
 
-	vbs = new VertexBuffer*[2];
 	vbs[0] = new VertexBuffer(4, *structures[0], 0);
 	float* vertices = vbs[0]->lock();
 	setVertex(vertices, 0, 0, 5, -1, -1, 0, 0, 0);
@@ -166,10 +164,15 @@ void initParticleSystem() {
 }
 
 void deleteParticleSystem() {
+	delete program;
+	delete vertexShader;
+	delete fragmentShader;
+
 	delete[] vbs[0];
 	delete[] vbs[1];
-	delete[] vbs;
 	delete[] ib;
+
+	delete texture;
 
 	delete[] emitters;
 	delete[] particles;
